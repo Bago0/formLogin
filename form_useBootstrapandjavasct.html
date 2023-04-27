@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Submit Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon-png--192.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+        <div class="container">
+            <div class="row py-lg-3">
+                <div class="col-sm-5 pl-1">
+                <h2>Submit Form</h2>
+                <form id="myForm" name="myForm">
+                    <div class="form-group">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" class="form-control" id="firstName" name="firstName" required pattern="^[A-Za-z, ა-ჰ]+$">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" class="form-control" id="lastName" name="lastName" required pattern="^[A-Za-z, ა-ჰ]+$">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" class="form-control" id="address" name="address" maxlength="35" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth:</label>
+                        <input type="date" class="form-control" id="dob" name="dob">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender:</label>
+                        <select class="form-control" id="gender" name="gender">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes:</label>
+                        <textarea class="form-control" id="notes" name="notes"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+                <div class="col-lg-7 pl-4 pr-(-1)">
+                    <h2>Submitted Data</h2>
+                         <div class="table-responsive">
+                            <table id="tableForInputedData" class="table  table-striped table-bordered">
+                                <thead>
+                                        <tr>
+                                            <th scope="col" class="align-text-top">ID</th>
+                                            <th scope="col" class="align-text-top">First Name</th>
+                                            <th scope="col" class="align-text-top">Last Name</th>
+                                            <th scope="col" class="align-text-top">Address</th>
+                                            <th scope="col" class="align-text-top">Date of Birth</th>
+                                            <th scope="col" class="align-text-top">Gender</th>
+                                            <th scope="col" class="align-text-top">Actions</th>
+                                        </tr>
+                                    </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+            </div>
+        <script>
+            //ლოკალური მეხსიერებიდან მონაცემების მიღება
+            let data = JSON.parse(localStorage.getItem("formData")) || [];
+            //ინფორმაციის გამოტანა
+            displayData();
+            //ინფორმაციის მიღება
+            document.getElementById("myForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                let firstName = document.getElementById("firstName").value.trim();
+                let lastName = document.getElementById("lastName").value.trim();
+                let address = document.getElementById("address").value.trim();
+                let dob = document.getElementById("dob").value;
+                let gender = document.getElementById("gender").value;
+                let notes =  document.getElementById("notes").value.trim();
+                //ინფორმაციის ვალიდაცია
+            let errors = [];
+            if (!/^[A-Za-z, ა-ჰ]+$/.test(firstName)) {
+                alert("First name should contain only alphabets.");
+                errors.push("First name should contain only alphabets.");
+                }
+            if (!/^[A-Za-z, ა-ჰ]+$/.test(lastName)) {
+                alert("Last name should contain only alphabets.");
+                errors.push("Last name should contain only alphabets.");
+
+            }
+            if (address.length > 35) {
+                alert("Address should not exceed 35 characters.");
+                errors.push("Address should not exceed 35 characters.");
+            }
+        
+            let dobInput = document.getElementById("dob");
+            let selectedDate = new Date(dobInput.value);
+            let selectedYear = selectedDate.getFullYear();
+            if (selectedYear < 1923) {
+                alert("Year of birth cannot be earlier than 1923.");
+                errors.push("Year of birth cannot be earlier than 1923.");
+            } else if(dob && new Date(dob) > new Date() && new Date(dob)){
+                alert("Date of birth cannot be in the future.");
+                errors.push("Date of birth cannot be in the future.");
+            }
+            //ერორების შემთხვევაში შენახვა არ შესრულდება
+            if (errors.length > 0) {
+                return false;
+            }
+            //მონაცემების მასივში ჩამატება
+            let id = data.length > 0 ? data[data.length - 1].id + 1 : 1;
+            data.push({id: id, firstName: firstName, lastName: lastName, address: address, dob: dob, gender: gender, notes: notes});
+            //მონაცემების ლოკალურად შენახვა
+            localStorage.setItem("formData", JSON.stringify(data));
+            //მონაცემების ცხრილში ჩვენება
+            displayData();
+            //ფორმის დარესეტება
+            document.getElementById("myForm").reset();
+        });
+        //ცხრილში მონაცემების ასახვა
+        function displayData() {
+            let tableBody = "";
+            data.forEach(function(row) {
+                tableBody += "<tr id='row" + row.id + "'>";
+                tableBody += "<td>" + row.id + "</td>";
+                tableBody += "<td>" + row.firstName + "</td>";
+                tableBody += "<td>" + row.lastName + "</td>";
+                tableBody += "<td>" + row.address + "</td>";
+                tableBody += "<td>" + row.dob + "</td>";
+                tableBody += "<td>" + row.gender + "</td>";
+                tableBody += "<td><button class='btn btn-info' onclick='viewNotes(" + row.id + ")'>Show Notes</button>";
+                tableBody += "<button class='btn btn-danger' onclick='deleteRow(" + row.id + ")'>Delete</button></td>";
+                tableBody += "</tr>";
+            });
+            document.querySelector("#tableForInputedData tbody").innerHTML = tableBody;
+        }
+        //დამატებული note ების ნახვა
+        function viewNotes(id) {
+            let row = data.find(function(row) {
+                return row.id === id;
+            });
+            alert(row.notes);
+        }
+        //დამატებული სტრიქონის წაშლა
+        function deleteRow(id) {
+            let index = data.findIndex(function(row) {
+                return row.id === id;
+            });
+            data.splice(index, 1);
+            localStorage.setItem("formData", JSON.stringify(data));
+            document.getElementById("row" + id).remove();
+        }
+    </script>
+</body>
+</html>
